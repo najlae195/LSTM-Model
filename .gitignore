@@ -1,14 +1,28 @@
-cat > .gitignore <<'GIT'
-# Python
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual env
 .venv/
+env/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
 # Data & artifacts
 data/raw/*
 !data/raw/.gitkeep
 data/processed/
 artifacts/
+
 # OS/IDE
 .DS_Store
-.ipynb_checkpoints/
-GIT
+Thumbs.db
+.vscode/
+.idea/
+
+

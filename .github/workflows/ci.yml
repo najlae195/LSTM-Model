@@ -1,0 +1,57 @@
+name: CI - LSTM smoke
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Prepare folders
+        run: |
+          mkdir -p data/raw artifacts/models artifacts/figures artifacts/reports
+
+      - name: Generate synthetic sample data (AAPL & MSFT)
+        run: |
+          python - <<'PY'
+          import pandas as pd, numpy as np
+          rng = np.random.default_rng(42)
+          def synth(n=500, start=100.0):
+              ret = rng.normal(0.0005, 0.01, n)
+              prices = [start]
+              for r in ret:
+                  prices.append(max(1e-3, prices[-1]*(1+r)))
+              return prices[1:]
+          dates = pd.bdate_range("2018-01-01", periods=500)
+          for sym, start in [("AAPL",150.0),("MSFT",220.0)]:
+              pd.DataFrame({"Date":dates,"Close":synth(500,start)}).to_csv(f"data/raw/{sym}.csv", index=False)
+          PY
+
+      - name: Train LSTM (AAPL)
+        run: python scripts/run_train.py --config config/default.yaml
+
+      - name: Evaluate (LSTM vs ARIMA vs SVR)
+        run: python scripts/run_eval.py
+
+      - name: Forecast 60-day
+        run: python scripts/run_forecast.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-artifacts
+          path: artifacts/
