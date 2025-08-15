@@ -1,0 +1,14 @@
+cat > .gitignore <<'GIT'
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Data & artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/processed/
+artifacts/
+# OS/IDE
+.DS_Store
+.ipynb_checkpoints/
+GIT
