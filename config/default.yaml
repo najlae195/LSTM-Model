@@ -1,0 +1,26 @@
+seed: 42
+data:
+  symbol: "AAPL"
+  csv_path: "data/raw/AAPL.csv"
+  msft_csv_path: "data/raw/MSFT.csv"
+  date_col: "Date"
+  target_col: "Close"
+split:
+  train_ratio: 0.8
+  val_ratio: 0.1
+preprocess:
+  scaler: "minmax"          # or "standard"
+  lookback_train: 60        # optimal for training
+  lookback_forecast: 90     # used for 60-day iterative forecast
+model:
+  lstm_layers: [64, 64, 32]
+  dropout: 0.2
+  learning_rate: 0.0005
+train:
+  epochs: 100
+  batch_size: 64
+  early_stopping_patience: 10
+  reduce_lr_patience: 5
+  reduce_lr_factor: 0.5
+forecast:
+  horizon_days: 60
